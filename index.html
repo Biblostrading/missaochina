@@ -2059,7 +2059,7 @@
         </div>
     </section>
     
- <!-- Form Section -->
+<!-- Form Section -->
 <section id="form" class="section" style="padding-top: 0; margin-top: -50px; background: linear-gradient(135deg, #000000 0%, #111111 100%);">
     <div class="container">
         <div class="form-container">
@@ -2069,7 +2069,6 @@
                 <!-- Configurações do Formspree -->
                 <input type="hidden" name="_subject" value="Nova Inscrição - Imersão China 2025">
                 <input type="hidden" name="_language" value="pt">
-                <!-- Removi o _next pois você não tem a página obrigado.html -->
                 <input type="text" name="_gotcha" style="display:none"> <!-- Anti-spam -->
                 
                 <!-- Dados Pessoais -->
@@ -2156,11 +2155,64 @@
                     <i class="fas fa-spinner fa-spin" id="submitSpinner" style="display: none;"></i>
                 </button>
                 
-                <div id="formFeedback" style="display: none; margin-top: 20px; padding: 15px; border-radius: 8px;"></div>
+                <!-- Mensagem de feedback (será exibida via JavaScript) -->
+                <div id="formFeedback" style="display: none; margin-top: 20px; padding: 15px; border-radius: 8px; background: rgba(0, 86, 179, 0.2); color: white;"></div>
             </form>
         </div>
     </div>
 </section>
+
+<!-- JavaScript para o formulário (adicione antes do </body>) -->
+<script>
+    // Validação e envio
+    document.getElementById('imersaoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const submitText = document.getElementById('submitText');
+        const spinner = document.getElementById('submitSpinner');
+        const feedback = document.getElementById('formFeedback');
+
+        // Mostrar spinner
+        submitText.textContent = 'Enviando...';
+        spinner.style.display = 'inline-block';
+
+        // Enviar dados via Fetch API
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Sucesso
+                feedback.textContent = '✅ Inscrição enviada com sucesso! Entraremos em contato em breve.';
+                feedback.style.display = 'block';
+                form.reset();
+            } else {
+                throw new Error('Erro no envio');
+            }
+        })
+        .catch(error => {
+            feedback.textContent = '❌ Ocorreu um erro. Por favor, tente novamente ou entre em contato.';
+            feedback.style.display = 'block';
+        })
+        .finally(() => {
+            submitText.textContent = 'Enviar Inscrição';
+            spinner.style.display = 'none';
+            window.scrollTo({ top: feedback.offsetTop - 100, behavior: 'smooth' });
+        });
+    });
+
+    // Máscara para telefone
+    document.getElementById('telefone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 0) {
+            value = value.match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+            e.target.value = !value[2] ? value[1] : `(${value[1]}) ${value[2]}${value[3] ? `-${value[3]}` : ''}`;
+        }
+    });
+</script>
     
     <!-- Footer -->
     <footer class="footer">
